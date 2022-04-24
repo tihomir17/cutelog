@@ -1,7 +1,7 @@
 import qtpy
 from qtpy.QtCore import QMetaObject, Qt
 from qtpy.QtWidgets import QDesktopWidget, QMessageBox
-from .text_view_dialog import TextViewDialog
+from text_view_dialog.text_view_dialog import TextViewDialog
 
 
 def show_info_dialog(parent, title, text):
@@ -27,7 +27,7 @@ def show_dialog(parent, title, text, icon):
     center_widget_on_screen(m)
 
 
-def show_textview_dialog(parent, title, text, icon=QMessageBox.Information):
+def show_textview_dialog(parent, title, text):
     d = TextViewDialog(parent, text)
     d.setWindowModality(Qt.NonModal)
     d.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -41,7 +41,11 @@ def center_widget_on_screen(widget):
     rect.moveCenter(center)
     widget.move(rect.topLeft())
 
-
+def loadUi(uifile, baseinstance=None):
+    loader = UiLoader(baseinstance, None)
+    widget = loader.load(uifile)
+    QMetaObject.connectSlotsByName(widget)
+    return widget
 # So .ui file loading is pretty hard to get to work with both PySide2 and PyQt5.
 # This is the only way I was able to figure it out.
 # loadUi function is pulled from qtpy, but modified to work around some PySide2

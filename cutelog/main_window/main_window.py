@@ -2,14 +2,14 @@ from qtpy.QtCore import QFile, Qt, QTextStream
 from qtpy.QtWidgets import (QFileDialog, QInputDialog, QMainWindow, QMenuBar,
                             QStatusBar, QTabWidget)
 
-from .about_dialog import AboutDialog
-from .config import CONFIG
-from .listener import LogServer
-from .logger_tab import LoggerTab, LogRecord
-from .merge_dialog import MergeDialog
-from .pop_in_dialog import PopInDialog
-from .settings_dialog import SettingsDialog
-from .utils import (center_widget_on_screen, show_critical_dialog,
+from about_dialog.about_dialog import AboutDialog
+from config.config import CONFIG
+from listener.listener import LogServer
+from logger_tab import LoggerTab, LogRecord
+from merge_dialog.merge_dialog import MergeDialog
+from pop_in_dialog.pop_in_dialog import PopInDialog
+from settings_dialog.settings_dialog import SettingsDialog
+from utils.utils import (center_widget_on_screen, show_critical_dialog,
                     show_warning_dialog)
 
 
@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         self.actionSettings.triggered.connect(self.settings_dialog)
         self.actionQuit.triggered.connect(self.shutdown)
 
-        # Tab meny
+        # Tab menu
         self.actionCloseTab.triggered.connect(self.close_current_tab)
         self.actionPopOut.triggered.connect(self.pop_out_tab)
         self.actionRenameTab.triggered.connect(self.rename_tab_dialog)
@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
         # About menu
         self.actionAbout.triggered.connect(self.about_dialog)
 
-    def change_actions_state(self, index=None):
+    def change_actions_state(self):
         logger, _ = self.current_logger_and_index()
         # if there are no loggers in tabs, these actions will be disabled:
         actions = [self.actionCloseTab, self.actionExtraMode, self.actionPopOut,
@@ -275,7 +275,7 @@ class MainWindow(QMainWindow):
         conn.connection_finished.connect(new_logger.remove_connection)
 
         if self.server.benchmark and conn_id == -1:
-            from .listener import BenchmarkMonitor
+            from listener.listener import BenchmarkMonitor
             bm = BenchmarkMonitor(self, new_logger)
             bm.speed_readout.connect(self.set_status)
             conn.connection_finished.connect(bm.requestInterruption)
@@ -322,6 +322,7 @@ class MainWindow(QMainWindow):
         del self.loggers_by_name[logger.name]
         logger.name = new_name
         self.loggers_by_name[new_name] = logger
+        print(f"New name is: {new_name}")
         logger.log.name = '.'.join(logger.log.name.split('.')[:-1]) + '.{}'.format(new_name)
         self.loggerTabWidget.setTabText(index, new_name)
 
@@ -565,5 +566,5 @@ class MainWindow(QMainWindow):
         self.destroy_all_tabs()
         self.app.quit()
 
-    def signal_handler(self, *args):
+    def signal_handler(self):
         self.shutdown()

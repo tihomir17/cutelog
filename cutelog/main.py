@@ -14,9 +14,9 @@ if not qtpy.PYQT5 and not qtpy.PYSIDE2:
 
 def main():
     import signal
-    from .config import ROOT_LOG
-    from .main_window import MainWindow
-    from .resources import qCleanupResources
+    from config.config import ROOT_LOG
+    from main_window.main_window import MainWindow
+    from resources.resources import qCleanupResources
     from qtpy.QtGui import QIcon
     from qtpy.QtWidgets import QApplication
 

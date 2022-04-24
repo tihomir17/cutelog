@@ -251,6 +251,7 @@ class Config(QObject):
         self.qsettings.beginGroup('Levels_Presets')
         result = self.qsettings.childGroups()
         self.qsettings.endGroup()
+        print(f"self.qsettings.endGroup(): {result}")
         return result
 
     def save_levels_preset(self, name, levels):
@@ -267,10 +268,12 @@ class Config(QObject):
         s.endGroup()
 
     def load_levels_preset(self, name):
-        from .log_levels import LogLevel
+        from log_levels.log_levels import LogLevel
         self.log.debug('Loading levels preset "{}"'.format(name))
         s = self.qsettings
+        print(f"Name: {name}")
         if name not in self.get_levels_presets():
+            print(f"Return None")
             return None
         s.beginGroup('Levels_Presets')
         size = s.beginReadArray(name)
@@ -279,6 +282,7 @@ class Config(QObject):
             s.setArrayIndex(i)
             new_level = LogLevel(None).loads(s.value('level'))
             result[new_level.levelname] = new_level
+        print(f"Result: {result}")
         s.endArray()
         s.endGroup()
         return result
@@ -292,6 +296,7 @@ class Config(QObject):
     def get_header_presets(self):
         self.qsettings.beginGroup('Header_Presets')
         result = self.qsettings.childGroups()
+        print(f"def get_header_presets(self): {result}")
         self.qsettings.endGroup()
         return result
 
@@ -312,7 +317,7 @@ class Config(QObject):
         s.endGroup()
 
     def load_header_preset(self, name):
-        from .logger_table_header import Column
+        from logger_table_header.logger_table_header import Column
         self.log.debug('Loading header preset "{}"'.format(name))
         s = self.qsettings
         if name not in self.get_header_presets():

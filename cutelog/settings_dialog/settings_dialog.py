@@ -3,8 +3,8 @@ from datetime import datetime
 from qtpy.QtGui import QDoubleValidator, QFont, QIntValidator, QValidator
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
-from .config import CONFIG, MSGPACK_SUPPORT, CBOR_SUPPORT
-from .utils import loadUi, show_info_dialog
+from config.config import CONFIG, MSGPACK_SUPPORT, CBOR_SUPPORT
+from utils.utils import loadUi, show_info_dialog
 
 
 class SettingsDialog(QDialog):
@@ -148,7 +148,7 @@ class SettingsDialog(QDialog):
         CONFIG.restore_defaults()
         self.done(0)
 
-    def time_format_valid(self, fmt):
+    def time_format_valid(self):
         if self.timeFormatLine.hasAcceptableInput():
             self.timeFormatLine.setStyleSheet("QLineEdit {}")
             return True

@@ -6,9 +6,9 @@ import time
 from qtpy.QtCore import QThread, Signal
 from qtpy.QtNetwork import QHostAddress, QTcpServer, QTcpSocket, QNetworkProxyFactory
 
-from .config import CONFIG, MSGPACK_SUPPORT, CBOR_SUPPORT
-from .logger_tab import LogRecord
-from .utils import show_critical_dialog
+from config.config import CONFIG, MSGPACK_SUPPORT, CBOR_SUPPORT
+from logger_tab import LogRecord
+from utils.utils import show_critical_dialog
 
 
 class LogServer(QTcpServer):
@@ -222,26 +222,26 @@ class BenchmarkConnection(LogConnection):
         test_names = ['CL', 'CL.Test1', 'CL.Test1.Test2', 'CL.Test3'
                       'hey', 'hey.hi.hello', 'CL.Test3.Test4.Test5']
         # dummy log item
-        d = {'args': None,
-             'created': 0,
-             'exc_info': None,
-             'filename': 'test.py',
-             'funcName': 'test_func',
-             'levelname': 'DEBUG',
-             'levelno': 10,
-             'lineno': 119,
-             'module': 'test',
-             'msecs': 332.2334289550781,
-             'msg': "hey",
-             'name': 'CL.Benchmark',
-             'pathname': '/home/user/test.py',
-             'process': 24238,
-             'processName': 'MainProcess',
-             'relativeCreated': 4951865.670204163,
-             'stack_info': None,
-             'thread': 140062538003776,
-             'threadName': 'MainThread',
-             'extra_column': 'hey there'}
+        {'args': None,
+         'created': 0,
+         'exc_info': None,
+         'filename': 'test.py',
+         'funcName': 'test_func',
+         'levelname': 'DEBUG',
+         'levelno': 10,
+         'lineno': 119,
+         'module': 'test',
+         'msecs': 332.2334289550781,
+         'msg': "hey",
+         'name': 'CL.Benchmark',
+         'pathname': '/home/user/test.py',
+         'process': 24238,
+         'processName': 'MainProcess',
+         'relativeCreated': 4951865.670204163,
+         'stack_info': None,
+         'thread': 140062538003776,
+         'threadName': 'MainThread',
+         'extra_column': 'hey there'}
         d = {}
         c = 0
         while True:

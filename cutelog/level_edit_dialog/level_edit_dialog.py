@@ -7,7 +7,7 @@ from qtpy.QtWidgets import (QCheckBox, QColorDialog, QDialog, QDialogButtonBox,
                             QFormLayout, QGridLayout, QGroupBox, QLabel,
                             QLineEdit, QSizePolicy, QSpacerItem)
 
-from .log_levels import DEFAULT_LEVELS, NO_LEVEL, LogLevel
+from log_levels.log_levels import DEFAULT_LEVELS, NO_LEVEL, LogLevel
 
 
 class LevelEditDialog(QDialog):
@@ -179,7 +179,7 @@ class LevelEditDialog(QDialog):
             self.underlineDark = enabled
         self.update_output()
 
-    def open_color_dialog(self, attr_name, mouse_event):
+    def open_color_dialog(self, attr_name):
         d = QColorDialog(self)
         d.setCurrentColor(getattr(self, attr_name))
         f = partial(self.set_color, attr_name)

@@ -8,12 +8,12 @@ from qtpy.QtGui import QBrush, QColor, QFont
 from qtpy.QtWidgets import (QCheckBox, QHBoxLayout, QMenu, QShortcut, QStyle,
                             QTableWidgetItem, QWidget)
 
-from .config import CONFIG, Exc_Indication
-from .level_edit_dialog import LevelEditDialog
-from .levels_preset_dialog import LevelsPresetDialog
-from .log_levels import NO_LEVEL, LevelFilter, LogLevel, get_default_level
-from .logger_table_header import HeaderEditDialog, LoggerTableHeader
-from .utils import loadUi, show_textview_dialog
+from config.config import CONFIG, Exc_Indication
+from level_edit_dialog.level_edit_dialog import LevelEditDialog
+from levels_preset_dialog.levels_preset_dialog import LevelsPresetDialog
+from log_levels.log_levels import NO_LEVEL, LevelFilter, LogLevel, get_default_level
+from logger_table_header.logger_table_header import HeaderEditDialog, LoggerTableHeader
+from utils.utils import loadUi, show_textview_dialog
 
 INVALID_INDEX = QModelIndex()
 SearchRole = 256
