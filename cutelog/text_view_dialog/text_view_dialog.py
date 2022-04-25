@@ -1,7 +1,15 @@
 from qtpy.QtGui import QFont
-from qtpy.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLayout,
-                            QPlainTextEdit, QPushButton, QSizePolicy,
-                            QSpacerItem, QVBoxLayout)
+from qtpy.QtWidgets import (
+    QApplication,
+    QDialog,
+    QHBoxLayout,
+    QLayout,
+    QPlainTextEdit,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+)
 
 from config.config import CONFIG
 
@@ -29,12 +37,14 @@ class TextViewDialog(QDialog):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.closeButton.clicked.connect(self.reject)
 
-        font = QFont(CONFIG['text_view_dialog_font'], CONFIG['text_view_dialog_font_size'])
+        font = QFont(
+            CONFIG["text_view_dialog_font"], CONFIG["text_view_dialog_font_size"]
+        )
         font.setStyleHint(QFont.Monospace)
         self.textEdit.setFont(font)
 
-        self.closeButton.setText('Close')
-        self.copyButton.setText('Copy to clipboard')
+        self.closeButton.setText("Close")
+        self.copyButton.setText("Copy to clipboard")
         self.textEdit.setPlainText(self.text)
         self.copyButton.clicked.connect(self.copy_text)
 

@@ -3,9 +3,19 @@ from functools import partial
 
 from qtpy.QtCore import Signal
 from qtpy.QtGui import QValidator
-from qtpy.QtWidgets import (QCheckBox, QColorDialog, QDialog, QDialogButtonBox,
-                            QFormLayout, QGridLayout, QGroupBox, QLabel,
-                            QLineEdit, QSizePolicy, QSpacerItem)
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QColorDialog,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QSizePolicy,
+    QSpacerItem,
+)
 
 from log_levels.log_levels import DEFAULT_LEVELS, NO_LEVEL, LogLevel
 
@@ -79,7 +89,9 @@ class LevelEditDialog(QDialog):
         self.previewLineDark = QLineEdit(self)
         self.gridLayout.addWidget(self.previewLineDark, 5, 1)
 
-        buttons = QDialogButtonBox.Reset | QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        buttons = (
+            QDialogButtonBox.Reset | QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        )
         self.buttonBox = QDialogButtonBox(buttons, self)
         self.resetButton = self.buttonBox.button(QDialogButtonBox.Reset)
         self.gridLayout.addWidget(self.buttonBox, 6, 0, 1, 2)
@@ -115,13 +127,19 @@ class LevelEditDialog(QDialog):
 
         self.boldCheckBoxDark.toggled.connect(partial(self.toggle_bold, dark=True))
         self.italicCheckBoxDark.toggled.connect(partial(self.toggle_italic, dark=True))
-        self.underlineCheckBoxDark.toggled.connect(partial(self.toggle_underline, dark=True))
+        self.underlineCheckBoxDark.toggled.connect(
+            partial(self.toggle_underline, dark=True)
+        )
 
         # couldn't find a way to make this any better
-        self.fgColorPreview.mouseReleaseEvent = partial(self.open_color_dialog, 'fg')
-        self.bgColorPreview.mouseReleaseEvent = partial(self.open_color_dialog, 'bg')
-        self.fgColorPreviewDark.mouseReleaseEvent = partial(self.open_color_dialog, 'fgDark')
-        self.bgColorPreviewDark.mouseReleaseEvent = partial(self.open_color_dialog, 'bgDark')
+        self.fgColorPreview.mouseReleaseEvent = partial(self.open_color_dialog, "fg")
+        self.bgColorPreview.mouseReleaseEvent = partial(self.open_color_dialog, "bg")
+        self.fgColorPreviewDark.mouseReleaseEvent = partial(
+            self.open_color_dialog, "fgDark"
+        )
+        self.bgColorPreviewDark.mouseReleaseEvent = partial(
+            self.open_color_dialog, "bgDark"
+        )
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -142,13 +160,13 @@ class LevelEditDialog(QDialog):
         self.bgDark = level.bgDark
         self.fgDark = level.fgDark
 
-        self.bold = 'bold' in level.styles
-        self.italic = 'italic' in level.styles
-        self.underline = 'underline' in level.styles
+        self.bold = "bold" in level.styles
+        self.italic = "italic" in level.styles
+        self.underline = "underline" in level.styles
 
-        self.boldDark = 'bold' in level.stylesDark
-        self.italicDark = 'italic' in level.stylesDark
-        self.underlineDark = 'underline' in level.stylesDark
+        self.boldDark = "bold" in level.stylesDark
+        self.italicDark = "italic" in level.stylesDark
+        self.underlineDark = "underline" in level.stylesDark
 
     def reset_level(self):
         replacement = DEFAULT_LEVELS.get(self.level.levelname)
@@ -193,19 +211,19 @@ class LevelEditDialog(QDialog):
     def accept(self):
         self.level.styles = set()
         if self.bold:
-            self.level.styles.add('bold')
+            self.level.styles.add("bold")
         if self.italic:
-            self.level.styles.add('italic')
+            self.level.styles.add("italic")
         if self.underline:
-            self.level.styles.add('underline')
+            self.level.styles.add("underline")
 
         self.level.stylesDark = set()
         if self.boldDark:
-            self.level.stylesDark.add('bold')
+            self.level.stylesDark.add("bold")
         if self.italicDark:
-            self.level.stylesDark.add('italic')
+            self.level.stylesDark.add("italic")
         if self.underlineDark:
-            self.level.stylesDark.add('underline')
+            self.level.stylesDark.add("underline")
 
         self.level.bg = self.bg
         self.level.fg = self.fg
@@ -224,23 +242,37 @@ class LevelEditDialog(QDialog):
         # Setting the pallette doesn't override the global stylesheet,
         # which is why I can't just set pallete with needed colors here.
 
-        self.previewLine.setStyleSheet("""QLineEdit {{
+        self.previewLine.setStyleSheet(
+            """QLineEdit {{
                                                color: {};
                                                background: {}
-                                          }}""".format(self.fg.name(), self.bg.name()))
+                                          }}""".format(
+                self.fg.name(), self.bg.name()
+            )
+        )
 
-        self.previewLineDark.setStyleSheet("""QLineEdit {{
+        self.previewLineDark.setStyleSheet(
+            """QLineEdit {{
                                                    color: {};
                                                    background: {}
-                                              }}""".format(self.fgDark.name(), self.bgDark.name()))
+                                              }}""".format(
+                self.fgDark.name(), self.bgDark.name()
+            )
+        )
 
-        self.bgColorPreview.setStyleSheet('QLineEdit {{background: {} }}'.format(self.bg.name()))
-        self.fgColorPreview.setStyleSheet('QLineEdit {{background: {} }}'.format(self.fg.name()))
+        self.bgColorPreview.setStyleSheet(
+            "QLineEdit {{background: {} }}".format(self.bg.name())
+        )
+        self.fgColorPreview.setStyleSheet(
+            "QLineEdit {{background: {} }}".format(self.fg.name())
+        )
 
-        self.bgColorPreviewDark.setStyleSheet('QLineEdit {{ background: {} }}'
-                                              .format(self.bgDark.name()))
-        self.fgColorPreviewDark.setStyleSheet('QLineEdit {{ background: {} }}'
-                                              .format(self.fgDark.name()))
+        self.bgColorPreviewDark.setStyleSheet(
+            "QLineEdit {{ background: {} }}".format(self.bgDark.name())
+        )
+        self.fgColorPreviewDark.setStyleSheet(
+            "QLineEdit {{ background: {} }}".format(self.fgDark.name())
+        )
 
         font = self.previewLine.font()
         font.setBold(self.bold)

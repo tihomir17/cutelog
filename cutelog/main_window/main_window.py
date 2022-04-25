@@ -1,6 +1,12 @@
 from qtpy.QtCore import QFile, Qt, QTextStream
-from qtpy.QtWidgets import (QFileDialog, QInputDialog, QMainWindow, QMenuBar,
-                            QStatusBar, QTabWidget)
+from qtpy.QtWidgets import (
+    QFileDialog,
+    QInputDialog,
+    QMainWindow,
+    QMenuBar,
+    QStatusBar,
+    QTabWidget,
+)
 
 from about_dialog.about_dialog import AboutDialog
 from config.config import CONFIG
@@ -9,19 +15,21 @@ from logger_tab import LoggerTab, LogRecord
 from merge_dialog.merge_dialog import MergeDialog
 from pop_in_dialog.pop_in_dialog import PopInDialog
 from settings_dialog.settings_dialog import SettingsDialog
-from utils.utils import (center_widget_on_screen, show_critical_dialog,
-                    show_warning_dialog)
+from utils.utils import (
+    center_widget_on_screen,
+    show_critical_dialog,
+    show_warning_dialog,
+)
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self, log, app):
-        self.log = log.getChild('Main')
+        self.log = log.getChild("Main")
         self.app = app
         super().__init__()
 
-        self.dark_theme = CONFIG['dark_theme_default']
-        self.single_tab_mode = CONFIG['single_tab_mode_default']
+        self.dark_theme = CONFIG["dark_theme_default"]
+        self.single_tab_mode = CONFIG["single_tab_mode_default"]
 
         self.loggers_by_name = {}  # name -> LoggerTab
         self.popped_out_loggers = {}
@@ -34,7 +42,7 @@ class MainWindow(QMainWindow):
 
     def setupUi(self):
         self.resize(800, 600)
-        self.setWindowTitle('outlogix')
+        self.setWindowTitle("outlogix")
 
         self.loggerTabWidget = QTabWidget(self)
         self.loggerTabWidget.setTabsClosable(True)
@@ -63,45 +71,47 @@ class MainWindow(QMainWindow):
 
         # File menu
         self.menuFile = self.menubar.addMenu("File")
-        self.actionLoadRecords = self.menuFile.addAction('Load records')
-        self.actionSaveRecords = self.menuFile.addAction('Save records')
+        self.actionLoadRecords = self.menuFile.addAction("Load records")
+        self.actionSaveRecords = self.menuFile.addAction("Save records")
         self.menuFile.addSeparator()
-        self.actionDarkTheme = self.menuFile.addAction('Dark theme')
+        self.actionDarkTheme = self.menuFile.addAction("Dark theme")
         self.actionDarkTheme.setCheckable(True)
         self.actionDarkTheme.setChecked(self.dark_theme)
-        self.actionSingleTab = self.menuFile.addAction('Single tab mode')
+        self.actionSingleTab = self.menuFile.addAction("Single tab mode")
         self.actionSingleTab.setCheckable(True)
         self.actionSingleTab.setChecked(self.single_tab_mode)
         # self.actionReloadStyle = self.menuFile.addAction('Reload style')
-        self.actionSettings = self.menuFile.addAction('Settings')
+        self.actionSettings = self.menuFile.addAction("Settings")
         self.menuFile.addSeparator()
-        self.actionQuit = self.menuFile.addAction('Quit')
+        self.actionQuit = self.menuFile.addAction("Quit")
 
         # Tab menu
         self.menuTab = self.menubar.addMenu("Tab")
-        self.actionCloseTab = self.menuTab.addAction('Close')
-        self.actionPopOut = self.menuTab.addAction('Pop out')
-        self.actionRenameTab = self.menuTab.addAction('Rename')
+        self.actionCloseTab = self.menuTab.addAction("Close")
+        self.actionPopOut = self.menuTab.addAction("Pop out")
+        self.actionRenameTab = self.menuTab.addAction("Rename")
         self.menuTab.addSeparator()
-        self.actionPopIn = self.menuTab.addAction('Pop in tabs...')
-        self.actionMergeTabs = self.menuTab.addAction('Merge tabs...')
+        self.actionPopIn = self.menuTab.addAction("Pop in tabs...")
+        self.actionMergeTabs = self.menuTab.addAction("Merge tabs...")
         self.menuTab.addSeparator()
-        self.actionExtraMode = self.menuTab.addAction('Extra mode')
+        self.actionExtraMode = self.menuTab.addAction("Extra mode")
         self.actionExtraMode.setCheckable(True)
 
         # Server menu
         self.menuServer = self.menubar.addMenu("Server")
-        self.actionRestartServer = self.menuServer.addAction('Restart server')
-        self.actionStartStopServer = self.menuServer.addAction('Stop server')
+        self.actionRestartServer = self.menuServer.addAction("Restart server")
+        self.actionStartStopServer = self.menuServer.addAction("Stop server")
 
         # Records menu
         self.menuRecords = self.menubar.addMenu("Records")
-        self.actionTrimTabRecords = self.menuRecords.addAction('Trim records')
-        self.actionSetMaxCapacity = self.menuRecords.addAction('Set max capacity')
+        self.actionTrimTabRecords = self.menuRecords.addAction("Trim records")
+        self.actionSetMaxCapacity = self.menuRecords.addAction("Set max capacity")
 
         # Tools menu
         self.menuServer = self.menubar.addMenu("Tools")
-        self.actionLogToJsonConverter = self.menuServer.addAction('Log to json converter')
+        self.actionLogToJsonConverter = self.menuServer.addAction(
+            "Log to json converter"
+        )
 
         # Help menu
         self.menuHelp = self.menubar.addMenu("Help")
@@ -130,7 +140,7 @@ class MainWindow(QMainWindow):
         # Server menu
         self.actionRestartServer.triggered.connect(self.restart_server)
         self.actionStartStopServer.triggered.connect(self.start_or_stop_server)
-        
+
         # Tools menu
         self.actionLogToJsonConverter.triggered.connect(self.converter_dialog)
 
@@ -144,9 +154,17 @@ class MainWindow(QMainWindow):
     def change_actions_state(self):
         logger, _ = self.current_logger_and_index()
         # if there are no loggers in tabs, these actions will be disabled:
-        actions = [self.actionCloseTab, self.actionExtraMode, self.actionPopOut,
-                   self.actionRenameTab, self.actionPopIn,
-                   self.actionTrimTabRecords, self.actionSetMaxCapacity, self.actionSaveRecords, self.actionLogToJsonConverter]
+        actions = [
+            self.actionCloseTab,
+            self.actionExtraMode,
+            self.actionPopOut,
+            self.actionRenameTab,
+            self.actionPopIn,
+            self.actionTrimTabRecords,
+            self.actionSetMaxCapacity,
+            self.actionSaveRecords,
+            self.actionLogToJsonConverter,
+        ]
 
         if not logger:
             for action in actions:
@@ -175,11 +193,11 @@ class MainWindow(QMainWindow):
         self.single_tab_mode = enabled
 
     def setup_shortcuts(self):
-        self.actionQuit.setShortcut('Ctrl+Q')
-        self.actionDarkTheme.setShortcut('Ctrl+S')
+        self.actionQuit.setShortcut("Ctrl+Q")
+        self.actionDarkTheme.setShortcut("Ctrl+S")
         # self.actionReloadStyle.setShortcut('Ctrl+R')
         # self.actionSettings.setShortcut('Ctrl+A')
-        self.actionCloseTab.setShortcut('Ctrl+W')
+        self.actionCloseTab.setShortcut("Ctrl+W")
 
     def save_geometry(self):
         CONFIG.save_geometry(self.geometry())
@@ -206,7 +224,7 @@ class MainWindow(QMainWindow):
             self.reload_light_style()
 
     def reload_light_style(self):
-        if CONFIG['light_theme_is_native']:
+        if CONFIG["light_theme_is_native"]:
             self.set_style_to_stock()
             return
         f = QFile(":/light_theme.qss")
@@ -227,7 +245,7 @@ class MainWindow(QMainWindow):
         self.app.setStyleSheet(qss)
 
     def set_style_to_stock(self):
-        self.app.setStyleSheet('')
+        self.app.setStyleSheet("")
 
     def toggle_dark_theme(self, enabled):
         self.dark_theme = enabled
@@ -243,23 +261,23 @@ class MainWindow(QMainWindow):
         logger.set_extra_mode(enabled)
 
     def start_server(self):
-        self.log.debug('Starting the server')
+        self.log.debug("Starting the server")
         self.server = LogServer(self, self.on_connection, self.log)
         self.server.start()
         self.server_running = True
-        self.actionStartStopServer.setText('Stop server')
+        self.actionStartStopServer.setText("Stop server")
 
     def stop_server(self):
         if self.server_running:
-            self.log.debug('Stopping the server')
+            self.log.debug("Stopping the server")
             self.server.close_server()
             self.server_running = False
             del self.server
             self.server = None
-        self.actionStartStopServer.setText('Start server')
+        self.actionStartStopServer.setText("Start server")
 
     def restart_server(self):
-        self.log.debug('Restarting the server')
+        self.log.debug("Restarting the server")
         self.stop_server()
         self.start_server()
 
@@ -270,7 +288,7 @@ class MainWindow(QMainWindow):
             self.start_server()
 
     def on_connection(self, conn, conn_id):
-        self.log.debug('New connection id={}'.format(conn_id))
+        self.log.debug("New connection id={}".format(conn_id))
 
         if self.single_tab_mode and len(self.loggers_by_name) > 0:
             new_logger = list(self.loggers_by_name.values())[0]
@@ -284,6 +302,7 @@ class MainWindow(QMainWindow):
 
         if self.server.benchmark and conn_id == -1:
             from listener.listener import BenchmarkMonitor
+
             bm = BenchmarkMonitor(self, new_logger)
             bm.speed_readout.connect(self.set_status)
             conn.connection_finished.connect(bm.requestInterruption)
@@ -323,43 +342,44 @@ class MainWindow(QMainWindow):
     def rename_current_tab(self, new_name):
         logger, index = self.current_logger_and_index()
         if new_name in self.loggers_by_name and new_name != logger.name:
-            show_warning_dialog(self, "Rename error",
-                                'Logger named "{}" already exists.'.format(new_name))
+            show_warning_dialog(
+                self,
+                "Rename error",
+                'Logger named "{}" already exists.'.format(new_name),
+            )
             return
         self.log.debug('Renaming logger "{}" to "{}"'.format(logger.name, new_name))
         del self.loggers_by_name[logger.name]
         logger.name = new_name
         self.loggers_by_name[new_name] = logger
         print(f"New name is: {new_name}")
-        logger.log.name = '.'.join(logger.log.name.split('.')[:-1]) + '.{}'.format(new_name)
+        logger.log.name = ".".join(logger.log.name.split(".")[:-1]) + ".{}".format(
+            new_name
+        )
         self.loggerTabWidget.setTabText(index, new_name)
 
-
-    def log_to_json(self, filepath:str = ""):
+    def log_to_json(self, filepath: str = ""):
         import json
         import ast
 
         result = []
-        with open(filepath) as f: 
-            lines = f.readlines() 
-            for line in lines: 
-                result.append(ast.literal_eval(line.split('\n')[0]))
+        with open(filepath) as f:
+            lines = f.readlines()
+            for line in lines:
+                result.append(ast.literal_eval(line.split("\n")[0]))
         with open("mydata.json", "w") as final:
             json.dump(result, final)
-            
-        self.set_status("Conversion done", timeout=5000)
 
+        self.set_status("Conversion done", timeout=5000)
 
     def converter_dialog(self):
         d = QFileDialog(self)
         d.setNameFilters(["Log files (*.log)", "json (*.json)"])
-        d.selectNameFilter("Logs (*.log *.json)")        
+        d.selectNameFilter("Logs (*.log *.json)")
         if d.exec():
             for f in d.selectedFiles():
                 self.log_to_json(f)
 
-            
-                
     def trim_records_dialog(self):
         logger, index = self.current_logger_and_index()
         if not logger:
@@ -367,8 +387,12 @@ class MainWindow(QMainWindow):
 
         d = QInputDialog(self)
         d.setInputMode(QInputDialog.IntInput)
-        d.setIntRange(0, 100000000)  # because it sets intMaximum to 99 by default. why??
-        d.setLabelText('Keep this many records out of {}:'.format(logger.record_model.rowCount()))
+        d.setIntRange(
+            0, 100000000
+        )  # because it sets intMaximum to 99 by default. why??
+        d.setLabelText(
+            "Keep this many records out of {}:".format(logger.record_model.rowCount())
+        )
         d.setWindowTitle('Trim tab records of "{}" logger'.format(logger.name))
         d.intValueSelected.connect(self.trim_current_tab_recordconverter_dialogs)
         d.open()
@@ -384,12 +408,16 @@ class MainWindow(QMainWindow):
 
         d = QInputDialog(self)
         d.setInputMode(QInputDialog.IntInput)
-        d.setIntRange(0, 100000000)  # because it sets intMaximum to 99 by default. why??
+        d.setIntRange(
+            0, 100000000
+        )  # because it sets intMaximum to 99 by default. why??
         max_now = logger.record_model.max_capacity
         max_now = "not set" if max_now is None else max_now
-        label_str = 'Set max capacity for "{}" logger\nCurrently {}. Set to 0 to disable:'
+        label_str = (
+            'Set max capacity for "{}" logger\nCurrently {}. Set to 0 to disable:'
+        )
         d.setLabelText(label_str.format(logger.name, max_now))
-        d.setWindowTitle('Set max capacity')
+        d.setWindowTitle("Set max capacity")
         d.intValueSelected.connect(self.set_max_capacity)
         d.open()
 
@@ -404,7 +432,9 @@ class MainWindow(QMainWindow):
         d.show()
 
     def merge_tabs(self, dst, srcs, keep_alive):
-        self.log.debug('Merging tabs: dst="{}", srcs={}, keep={}'.format(dst, srcs, keep_alive))
+        self.log.debug(
+            'Merging tabs: dst="{}", srcs={}, keep={}'.format(dst, srcs, keep_alive)
+        )
 
         dst_logger = self.loggers_by_name[dst]
         for src_name in srcs:
@@ -464,7 +494,9 @@ class MainWindow(QMainWindow):
         logger.destroyed.connect(logger.closeEvent)
         logger.setAttribute(Qt.WA_DeleteOnClose, True)
         logger.setWindowFlags(Qt.Window)
-        logger.setWindowTitle('outlogix: "{}"'.format(self.loggerTabWidget.tabText(index)))
+        logger.setWindowTitle(
+            'outlogix: "{}"'.format(self.loggerTabWidget.tabText(index))
+        )
         self.popped_out_loggers[logger.name] = logger
         self.loggerTabWidget.removeTab(index)
         logger.popped_out = True
@@ -497,7 +529,7 @@ class MainWindow(QMainWindow):
         d = QFileDialog(self)
         d.setFileMode(QFileDialog.ExistingFile)
         d.fileSelected.connect(self.load_records)
-        d.setWindowTitle('Load records from...')
+        d.setWindowTitle("Load records from...")
         d.open()
 
     def load_records(self, load_path):
@@ -506,14 +538,16 @@ class MainWindow(QMainWindow):
 
         class RecordDecoder(json.JSONDecoder):
             def __init__(self, *args, **kwargs):
-                json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
+                json.JSONDecoder.__init__(
+                    self, object_hook=self.object_hook, *args, **kwargs
+                )
 
             def object_hook(self, obj):
-                if '_created' in obj:
-                    obj['created'] = obj['_created']
-                    del obj['_created']
+                if "_created" in obj:
+                    obj["created"] = obj["_created"]
+                    del obj["_created"]
                     record = LogRecord(obj)
-                    del record._logDict['created']
+                    del record._logDict["created"]
                 else:
                     record = LogRecord(obj)
                 return record
@@ -522,12 +556,14 @@ class MainWindow(QMainWindow):
         index = None
 
         try:
-            with open(load_path, 'r') as f:
+            with open(load_path, "r") as f:
                 records = json.load(f, cls=RecordDecoder)
                 new_logger, index = self.create_logger(None, name)
                 new_logger.merge_with_records(records)
                 self.loggerTabWidget.setCurrentIndex(index)
-            self.set_status('Records have been loaded into "{}" tab'.format(new_logger.name))
+            self.set_status(
+                'Records have been loaded into "{}" tab'.format(new_logger.name)
+            )
         except Exception as e:
             if index:
                 self.close_tab(index)
@@ -537,12 +573,13 @@ class MainWindow(QMainWindow):
 
     def open_save_records_dialog(self):
         from functools import partial
+
         logger, _ = self.current_logger_and_index()
         if not logger:
             return
 
         d = QFileDialog(self)
-        d.selectFile(logger.name + '.log')
+        d.selectFile(logger.name + ".log")
         d.setFileMode(QFileDialog.AnyFile)
         d.fileSelected.connect(partial(self.save_records, logger))
         d.setWindowTitle('Save records of "{}" tab to...'.format(logger.name))
@@ -562,14 +599,14 @@ class MainWindow(QMainWindow):
             def __iter__(self):
                 for record in self.records:
                     d = record._logDict
-                    if not d.get('created', False) and not d.get('time', False):
-                        d['_created'] = record.created
+                    if not d.get("created", False) and not d.get("time", False):
+                        d["_created"] = record.created
                     yield d
 
         try:
             records = logger.record_model.records
             record_list = RecordList(records)
-            with open(path, 'w') as f:
+            with open(path, "w") as f:
                 json.dump(record_list, f, indent=2)
             self.set_status('Records have been saved to "{}"'.format(path))
 
@@ -579,20 +616,22 @@ class MainWindow(QMainWindow):
             show_critical_dialog(self, "Couldn't save records", text)
 
     def closeEvent(self, event):
-        self.log.info('Close event on main window')
+        self.log.info("Close event on main window")
         self.shutdown()
         event.ignore()  # prevents errors due to closing the program before server has stopped
 
     def destroy_all_tabs(self):
-        self.log.debug('Destroying tabs')
-        delete_this = list(self.loggers_by_name.values())  # to prevent changing during iteration
+        self.log.debug("Destroying tabs")
+        delete_this = list(
+            self.loggers_by_name.values()
+        )  # to prevent changing during iteration
         for logger in delete_this:
             self.destroy_logger(logger)
 
     def shutdown(self):
-        self.log.info('Shutting down')
+        self.log.info("Shutting down")
         if self.shutting_down:
-            self.log.error('Exiting forcefully')
+            self.log.error("Exiting forcefully")
             raise SystemExit
         self.shutting_down = True
         self.stop_server()

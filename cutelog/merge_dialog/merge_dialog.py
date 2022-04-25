@@ -1,8 +1,18 @@
 # from qtpy.uic import loadUi
 from qtpy.QtCore import Qt, Signal
-from qtpy.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox, QDialog,
-                            QDialogButtonBox, QGridLayout, QLabel, QListWidget,
-                            QListWidgetItem, QSizePolicy, QSpacerItem)
+from qtpy.QtWidgets import (
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QSizePolicy,
+    QSpacerItem,
+)
 
 
 class LoggerListItem(QListWidgetItem):
@@ -25,7 +35,7 @@ class MergeDialog(QDialog):
         super().__init__(parent)
 
         self.loggers = loggers
-        self.merge_list = []   # all tabs to be merged
+        self.merge_list = []  # all tabs to be merged
         self.merge_dst = None  # tab to merge the rest of merge_list into
 
         self.setupUi()
@@ -35,7 +45,9 @@ class MergeDialog(QDialog):
         self.gridLayout = QGridLayout(self)
         self.dstComboBox = QComboBox(self)
         self.gridLayout.addWidget(self.dstComboBox, 1, 2, 1, 2)
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok, self)
+        self.buttonBox = QDialogButtonBox(
+            QDialogButtonBox.Cancel | QDialogButtonBox.Ok, self
+        )
         self.gridLayout.addWidget(self.buttonBox, 5, 0, 1, 4)
         self.loggerList = QListWidget(self)
         self.loggerList.setDefaultDropAction(Qt.IgnoreAction)
@@ -54,12 +66,16 @@ class MergeDialog(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-        self.loggerList.selectionModel().selectionChanged.connect(self.merge_list_changed)
+        self.loggerList.selectionModel().selectionChanged.connect(
+            self.merge_list_changed
+        )
         self.dstComboBox.currentTextChanged.connect(self.merge_dst_changed)
         self.ok_button = self.buttonBox.button(QDialogButtonBox.Ok)
         self.ok_button.setEnabled(False)
-        self.keepAliveCheckBox.setToolTip("If disabled then only the destination connection "
-                                          "will still be alive after merging.")
+        self.keepAliveCheckBox.setToolTip(
+            "If disabled then only the destination connection "
+            "will still be alive after merging."
+        )
 
         self.fill_logger_list()
 
@@ -90,7 +106,9 @@ class MergeDialog(QDialog):
     def accept(self):
         name_list = [item.name for item in self.merge_list]
         name_list.remove(self.merge_dst)
-        self.merge_tabs_signal.emit(self.merge_dst, name_list, self.keepAliveCheckBox.isChecked())
+        self.merge_tabs_signal.emit(
+            self.merge_dst, name_list, self.keepAliveCheckBox.isChecked()
+        )
         self.done(0)
 
     def reject(self):

@@ -7,8 +7,18 @@ from config.config import CONFIG
 
 
 class LogLevel:
-    def __init__(self, levelname, enabled=True, fg=None, bg=None,
-                 fgDark=None, bgDark=None, styles=set(), stylesDark=None, load=None):
+    def __init__(
+        self,
+        levelname,
+        enabled=True,
+        fg=None,
+        bg=None,
+        fgDark=None,
+        bgDark=None,
+        styles=set(),
+        stylesDark=None,
+        load=None,
+    ):
         if load:
             self.loads(load)
             return
@@ -45,17 +55,17 @@ class LogLevel:
 
     def copy_from(self, other_level):
         for attr in self.__dict__:
-            if attr in ['levelname']:
+            if attr in ["levelname"]:
                 continue
             self.__dict__[attr] = deepcopy(other_level.__dict__[attr])
 
     def dumps(self):
         d = deepcopy(self.__dict__)
-        d['styles'] = list(d['styles'])
-        d['stylesDark'] = list(d['stylesDark'])
-        d['fg'], d['fgDark'] = d['fg'].name(), d['fgDark'].name()
-        d['bg'], d['bgDark'] = d['bg'].name(), d['bgDark'].name()
-        return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
+        d["styles"] = list(d["styles"])
+        d["stylesDark"] = list(d["stylesDark"])
+        d["fg"], d["fgDark"] = d["fg"].name(), d["fgDark"].name()
+        d["bg"], d["bgDark"] = d["bg"].name(), d["bgDark"].name()
+        return json.dumps(d, ensure_ascii=False, separators=(",", ":"))
 
     def loads(self, string):
         self.__dict__ = json.loads(string)
@@ -66,19 +76,26 @@ class LogLevel:
         return self
 
     def __repr__(self):
-        return "{}(levelname={}, enabled={})".format(self.__class__.__name__, self.levelname,
-                                                     self.enabled)
+        return "{}(levelname={}, enabled={})".format(
+            self.__class__.__name__, self.levelname, self.enabled
+        )
 
 
-DEFAULT_LEVELS = \
-    {
-        'DEBUG':    LogLevel('DEBUG',    fg=QColor(145, 145, 145), fgDark=QColor(169, 169, 169)),
-        'INFO':     LogLevel('INFO',     bg=QColor(200, 255, 200), fgDark=QColor(169, 255, 169)),
-        'WARNING':  LogLevel('WARNING',  bg=QColor(255, 255, 180), fgDark=QColor(255, 255, 129)),
-        'ERROR':    LogLevel('ERROR',    bg=QColor(255, 190, 190), fgDark=QColor(255, 169, 169)),
-        'CRITICAL': LogLevel('CRITICAL', fg=QColor(255, 0, 0),     bg=QColor(0, 0, 0),
-                             fgDark=QColor(255, 0, 0), styles={'bold'}),
-    }
+DEFAULT_LEVELS = {
+    "DEBUG": LogLevel("DEBUG", fg=QColor(145, 145, 145), fgDark=QColor(169, 169, 169)),
+    "INFO": LogLevel("INFO", bg=QColor(200, 255, 200), fgDark=QColor(169, 255, 169)),
+    "WARNING": LogLevel(
+        "WARNING", bg=QColor(255, 255, 180), fgDark=QColor(255, 255, 129)
+    ),
+    "ERROR": LogLevel("ERROR", bg=QColor(255, 190, 190), fgDark=QColor(255, 169, 169)),
+    "CRITICAL": LogLevel(
+        "CRITICAL",
+        fg=QColor(255, 0, 0),
+        bg=QColor(0, 0, 0),
+        fgDark=QColor(255, 0, 0),
+        styles={"bold"},
+    ),
+}
 
 NO_LEVEL = LogLevel("NO_LEVEL")
 
@@ -87,17 +104,17 @@ def get_default_level(name):
     if name in DEFAULT_LEVELS:
         return DEFAULT_LEVELS[name]
     # some Go compat
-    elif name in ('FATAL', 'PANIC'):
-        return DEFAULT_LEVELS['CRITICAL']
-    elif name == 'WARN':
-        return DEFAULT_LEVELS['WARNING']
+    elif name in ("FATAL", "PANIC"):
+        return DEFAULT_LEVELS["CRITICAL"]
+    elif name == "WARN":
+        return DEFAULT_LEVELS["WARNING"]
     else:
         return NO_LEVEL
 
 
 class LevelFilter:
     def __init__(self):
-        self.preset_name = CONFIG['default_levels_preset']
+        self.preset_name = CONFIG["default_levels_preset"]
         self.levels = CONFIG.load_levels_preset(self.preset_name)
         if not self.levels:
             self.levels = deepcopy(DEFAULT_LEVELS)

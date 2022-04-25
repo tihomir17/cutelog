@@ -18,7 +18,9 @@ class PopInDialog(QDialog):
         self.listWidget.setSelectionMode(self.listWidget.MultiSelection)
         self.listWidget.selectionModel().reset()
         self.vbox.addWidget(self.listWidget)
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.buttonBox = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self
+        )
         self.vbox.addWidget(self.buttonBox)
 
         self.buttonBox.accepted.connect(self.accept)

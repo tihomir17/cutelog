@@ -43,11 +43,14 @@ def center_widget_on_screen(widget):
     rect.moveCenter(center)
     widget.move(rect.topLeft())
 
+
 def loadUi(uifile, baseinstance=None):
     loader = UiLoader(baseinstance, None)
     widget = loader.load(uifile)
     QMetaObject.connectSlotsByName(widget)
     return widget
+
+
 # So .ui file loading is pretty hard to get to work with both PySide2 and PyQt5.
 # This is the only way I was able to figure it out.
 # loadUi function is pulled from qtpy, but modified to work around some PySide2
@@ -60,5 +63,7 @@ if qtpy.PYSIDE2:
         widget = loader.load(uifile)
         QMetaObject.connectSlotsByName(widget)
         return widget
+
+
 else:
     from qtpy.uic import loadUi

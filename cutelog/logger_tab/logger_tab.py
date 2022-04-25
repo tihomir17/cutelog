@@ -2,11 +2,25 @@ from collections import deque
 from datetime import datetime
 from functools import partial
 
-from qtpy.QtCore import (QAbstractItemModel, QAbstractTableModel, QEvent,
-                         QModelIndex, QSize, QSortFilterProxyModel, Qt)
+from qtpy.QtCore import (
+    QAbstractItemModel,
+    QAbstractTableModel,
+    QEvent,
+    QModelIndex,
+    QSize,
+    QSortFilterProxyModel,
+    Qt,
+)
 from qtpy.QtGui import QBrush, QColor, QFont
-from qtpy.QtWidgets import (QCheckBox, QHBoxLayout, QMenu, QShortcut, QStyle,
-                            QTableWidgetItem, QWidget)
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QHBoxLayout,
+    QMenu,
+    QShortcut,
+    QStyle,
+    QTableWidgetItem,
+    QWidget,
+)
 
 from config.config import CONFIG, Exc_Indication
 from level_edit_dialog.level_edit_dialog import LevelEditDialog
@@ -32,7 +46,7 @@ class TreeNode:
         while cur_parent.parent is not None:
             result.insert(0, cur_parent.name)
             cur_parent = cur_parent.parent
-        return '.'.join(result)
+        return ".".join(result)
 
     @property
     def row(self):
@@ -42,17 +56,19 @@ class TreeNode:
             return 0
 
     def is_descendant_of(self, node_path):
-        return self.path.startswith(node_path + '.')
+        return self.path.startswith(node_path + ".")
 
     def __repr__(self):
-        return "{}(name={}, path={})".format(self.__class__.__name__, self.name, self.path)
+        return "{}(name={}, path={})".format(
+            self.__class__.__name__, self.name, self.path
+        )
 
 
 class LogNamespaceTreeModel(QAbstractItemModel):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.root = TreeNode(None, '')
-        self.registry = {'': self.root}
+        self.root = TreeNode(None, "")
+        self.registry = {"": self.root}
         self.selected_nodes = set()
 
     def data(self, index, role=Qt.DisplayRole):
@@ -88,7 +104,7 @@ class LogNamespaceTreeModel(QAbstractItemModel):
 
     def rowCount(self, parent=QModelIndex()):
         if not parent.isValid():
-            return(len(self.root.children))
+            return len(self.root.children)
         else:
             node = parent.internalPointer()
             return len(node.children)
@@ -97,7 +113,7 @@ class LogNamespaceTreeModel(QAbstractItemModel):
         if full_name in self.registry:  # if name is already registred, return it
             return self.registry[full_name]
         else:
-            parts = full_name.rsplit('.', 1)  # split off the last name only
+            parts = full_name.rsplit(".", 1)  # split off the last name only
             name = parts[-1]
 
             if len(parts) == 1:
@@ -135,6 +151,7 @@ class LogRecord:
     It's used to avoid creation of useless fields that logging.makeLogRecord produces,
     as well as imitate some of its behavior.
     """
+
     def __init__(self, logDict):
         # this is what logging.Formatter (for asctime) did previously, but it didn't delete "msg"
         self.message = logDict.get("message")
@@ -167,7 +184,7 @@ class LogRecord:
         return str(self._logDict)
 
     def generate_asctime(self):
-        fmt = CONFIG['time_format_string']
+        fmt = CONFIG["time_format_string"]
         if fmt:
             try:
                 self.asctime = datetime.fromtimestamp(self.created).strftime(fmt)
@@ -178,7 +195,6 @@ class LogRecord:
 
 
 class LogRecordModel(QAbstractTableModel):
-
     def __init__(self, parent, levels, header, max_capacity=0):
         super().__init__(parent)
         self.parent_widget = parent
@@ -188,7 +204,7 @@ class LogRecordModel(QAbstractTableModel):
         self.dark_theme = False
         self.max_capacity = max_capacity
         self.table_header = header
-        self.extra_mode = CONFIG['extra_mode_default']
+        self.extra_mode = CONFIG["extra_mode_default"]
 
     def columnCount(self, index):
         return self.table_header.column_count
@@ -202,7 +218,7 @@ class LogRecordModel(QAbstractTableModel):
 
         result = None
         record = self.records[index.row()]
-        if getattr(record, '_outlogix', False):
+        if getattr(record, "_outlogix", False):
             return self.data_internal(index, record, role)
 
         if role == Qt.DisplayRole:
@@ -212,28 +228,36 @@ class LogRecordModel(QAbstractTableModel):
             else:
                 result = getattr(record, column_name, None)
         elif role == Qt.SizeHintRole:
-            if self.extra_mode and self.table_header[index.column()].name == 'message':
-                return QSize(1, CONFIG.logger_row_height *
-                             (1 + len(self.get_fields_for_extra(record))))
+            if self.extra_mode and self.table_header[index.column()].name == "message":
+                return QSize(
+                    1,
+                    CONFIG.logger_row_height
+                    * (1 + len(self.get_fields_for_extra(record))),
+                )
             else:
                 return QSize(1, CONFIG.logger_row_height)
         elif role == Qt.DecorationRole:
-            if self.table_header[index.column()].name == 'message':
+            if self.table_header[index.column()].name == "message":
                 if record.exc_text:
-                    mode = CONFIG['exception_indication']
-                    should = mode in (Exc_Indication.MSG_ICON, Exc_Indication.ICON_AND_RED_BG)
+                    mode = CONFIG["exception_indication"]
+                    should = mode in (
+                        Exc_Indication.MSG_ICON,
+                        Exc_Indication.ICON_AND_RED_BG,
+                    )
                     if should:
-                        result = self.parent_widget.style().standardIcon(QStyle.SP_BrowserStop)
+                        result = self.parent_widget.style().standardIcon(
+                            QStyle.SP_BrowserStop
+                        )
         elif role == Qt.FontRole:
             level = self.levels.get(record.levelname, NO_LEVEL)
             styles = level.styles if not self.dark_theme else level.stylesDark
             result = QFont(CONFIG.logger_table_font, CONFIG.logger_table_font_size)
             if styles:
-                if 'bold' in styles:
+                if "bold" in styles:
                     result.setBold(True)
-                if 'italic' in styles:
+                if "italic" in styles:
                     result.setItalic(True)
-                if 'underline' in styles:
+                if "underline" in styles:
                     result.setUnderline(True)
         elif role == Qt.ForegroundRole:
             level = self.levels.get(record.levelname, NO_LEVEL)
@@ -243,7 +267,7 @@ class LogRecordModel(QAbstractTableModel):
                 result = level.fgDark
         elif role == Qt.BackgroundRole:
             if record.exc_text:
-                mode = CONFIG['exception_indication']
+                mode = CONFIG["exception_indication"]
                 should = mode in (Exc_Indication.RED_BG, Exc_Indication.ICON_AND_RED_BG)
                 if should:
                     if not self.dark_theme:
@@ -268,7 +292,7 @@ class LogRecordModel(QAbstractTableModel):
                 result = record._outlogix
             else:
                 column = self.table_header[index.column()]
-                if column.name == 'asctime':
+                if column.name == "asctime":
                     result = record.asctime
         elif role == Qt.SizeHintRole:
             result = QSize(1, CONFIG.logger_row_height)
@@ -289,7 +313,11 @@ class LogRecordModel(QAbstractTableModel):
 
     def get_fields_for_extra(self, record):
         # this is a tiny bit slower than a set difference, but preserves order
-        return [field for field in record._logDict if field not in self.table_header.visible_names]
+        return [
+            field
+            for field in record._logDict
+            if field not in self.table_header.visible_names
+        ]
 
     def get_extra(self, msg, record):
         fields = self.get_fields_for_extra(record)
@@ -315,6 +343,7 @@ class LogRecordModel(QAbstractTableModel):
 
     def trim_except_last_n(self, n):
         from itertools import islice
+
         start = len(self.records) - n
         if start < 0:
             return
@@ -339,7 +368,10 @@ class LogRecordModel(QAbstractTableModel):
         self.modelAboutToBeReset.emit()
         from itertools import chain
         from operator import attrgetter  # works faster than lambda, but not in pypy3
-        new_records = deque(sorted(chain(self.records, new_records), key=attrgetter('created')))
+
+        new_records = deque(
+            sorted(chain(self.records, new_records), key=attrgetter("created"))
+        )
         del self.records
         self.records = new_records
         self.modelReset.emit()
@@ -374,7 +406,7 @@ class RecordFilter(QSortFilterProxyModel):
             else:
                 for node in selected_nodes:
                     path = node.path
-                    if path == '':
+                    if path == "":
                         result = True
                         break
                     if path:
@@ -388,7 +420,9 @@ class RecordFilter(QSortFilterProxyModel):
                         elif not self.selection_includes_children and name == path:
                             result = True
                             break
-                        elif self.selection_includes_children and name.startswith(path + '.'):
+                        elif self.selection_includes_children and name.startswith(
+                            path + "."
+                        ):
                             result = True
                             break
                         else:
@@ -443,7 +477,7 @@ class DetailTableModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return ('Name', 'Value')[section]
+            return ("Name", "Value")[section]
         return None
 
     def data(self, index, role=Qt.DisplayRole):
@@ -462,7 +496,9 @@ class DetailTableModel(QAbstractTableModel):
         self.endResetModel()
 
     def set_record(self, record):
-        record_dict = record._logDict.copy()  # copy to prevent editing the actual record
+        record_dict = (
+            record._logDict.copy()
+        )  # copy to prevent editing the actual record
         self.record = tuple(record_dict.items())
         self.reset()
 
@@ -478,7 +514,7 @@ class LoggerTab(QWidget):
     def __init__(self, parent, name, connection, log, main_window):
         super().__init__(parent)
         self.log = log.getChild(name)
-        self.log.debug('Starting a logger named {}'.format(name))
+        self.log.debug("Starting a logger named {}".format(name))
         self.name = name
         self.main_window = main_window
         self.level_filter = LevelFilter()
@@ -493,12 +529,12 @@ class LoggerTab(QWidget):
         if connection is not None:
             self.connections.append(connection)
         self.last_status_update_time = 0
-        self.extra_mode = CONFIG['extra_mode_default']
+        self.extra_mode = CONFIG["extra_mode_default"]
 
-        self.search_bar_visible = CONFIG['search_open_default']
-        self.search_regex = CONFIG['search_regex_default']
-        self.search_casesensitive = CONFIG['search_casesensitive_default']
-        self.search_wildcard = CONFIG['search_wildcard_default']
+        self.search_bar_visible = CONFIG["search_open_default"]
+        self.search_regex = CONFIG["search_regex_default"]
+        self.search_casesensitive = CONFIG["search_casesensitive_default"]
+        self.search_wildcard = CONFIG["search_wildcard_default"]
 
         self.search_start = 0
         self.search_filter = False
@@ -509,9 +545,11 @@ class LoggerTab(QWidget):
         self.set_columns_sizes()
 
     def setupUi(self):
-        self.ui = loadUi(CONFIG.get_ui_qfile('logger.ui'), baseinstance=self)
+        self.ui = loadUi(CONFIG.get_ui_qfile("logger.ui"), baseinstance=self)
         self.table_header = LoggerTableHeader(self.loggerTable.horizontalHeader())
-        self.record_model = LogRecordModel(self, self.level_filter.levels, self.table_header)
+        self.record_model = LogRecordModel(
+            self, self.level_filter.levels, self.table_header
+        )
 
         self.loggerTable.verticalScrollBar().rangeChanged.connect(self.onRangeChanged)
         self.loggerTable.verticalScrollBar().valueChanged.connect(self.onScroll)
@@ -520,13 +558,19 @@ class LoggerTab(QWidget):
 
         self.loggerTable.setStyleSheet("QTableView { border: 0px;}")
 
-        self.loggerTable.verticalHeader().setDefaultSectionSize(CONFIG['logger_row_height'])
+        self.loggerTable.verticalHeader().setDefaultSectionSize(
+            CONFIG["logger_row_height"]
+        )
 
         self.namespaceTreeView.setModel(self.namespace_tree_model)
         self.namespaceTreeView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.namespaceTreeView.customContextMenuRequested.connect(self.open_namespace_table_menu)
+        self.namespaceTreeView.customContextMenuRequested.connect(
+            self.open_namespace_table_menu
+        )
         tree_sel_model = self.namespaceTreeView.selectionModel()
-        tree_sel_model.selectionChanged.connect(self.namespace_tree_model.selection_changed)
+        tree_sel_model.selectionChanged.connect(
+            self.namespace_tree_model.selection_changed
+        )
         tree_sel_model.selectionChanged.connect(self.tree_selection_changed)
         self.namespace_tree_model.rowsInserted.connect(self.on_tree_rows_inserted)
 
@@ -538,7 +582,9 @@ class LoggerTab(QWidget):
         self.levelsTable.customContextMenuRequested.connect(self.open_levels_table_menu)
 
         if self.filter_model_enabled:
-            self.filter_model = RecordFilter(self, self.namespace_tree_model, self.level_filter)
+            self.filter_model = RecordFilter(
+                self, self.namespace_tree_model, self.level_filter
+            )
             self.filter_model.setSourceModel(self.record_model)
             self.loggerTable.setModel(self.filter_model)
         else:
@@ -561,41 +607,41 @@ class LoggerTab(QWidget):
 
         self.searchWidget.setVisible(self.search_bar_visible)
         self.filterButton.clicked.connect(self.filter_or_clear)
-        self.filterButton.setToolTip('Adheres to the same settings as the search')
+        self.filterButton.setToolTip("Adheres to the same settings as the search")
 
     def setup_shortcuts(self):
-        self.searchSC_Home = QShortcut('Home', self)
+        self.searchSC_Home = QShortcut("Home", self)
         self.searchSC_Home.activated.connect(partial(self.loggerTable.selectRow, 0))
         self.searchSC_Home.setAutoRepeat(False)
 
-        self.searchSC_End = QShortcut('End', self)
+        self.searchSC_End = QShortcut("End", self)
         self.searchSC_End.activated.connect(self.select_last_row)
         self.searchSC_End.setAutoRepeat(False)
 
-        self.searchSC = QShortcut('Ctrl+F', self)
+        self.searchSC = QShortcut("Ctrl+F", self)
         self.searchSC.activated.connect(self.toggle_search)
         self.searchSC.setAutoRepeat(False)
 
-        self.searchSC_F3 = QShortcut('F3', self)
+        self.searchSC_F3 = QShortcut("F3", self)
         self.searchSC_F3.activated.connect(self.search_down_or_close)
         self.searchSC_F3.setAutoRepeat(True)
 
-        self.searchSC_Esc = QShortcut('Esc', self)
+        self.searchSC_Esc = QShortcut("Esc", self)
         self.searchSC_Esc.activated.connect(partial(self.set_search_visible, False))
         self.searchSC_Esc.setAutoRepeat(False)
 
     def setup_search_button_menu(self):
         smenu = QMenu(self.searchDownButton)
-        action_regex = smenu.addAction('Regex')
+        action_regex = smenu.addAction("Regex")
         action_regex.setCheckable(True)
         action_regex.setChecked(self.search_regex)
         # PySide2 doesn't like functools.partial(setattr, ...)
         action_regex.triggered.connect(self.set_search_regex)
-        action_case = smenu.addAction('Case sensitive')
+        action_case = smenu.addAction("Case sensitive")
         action_case.setCheckable(True)
         action_case.setChecked(self.search_casesensitive)
         action_case.triggered.connect(self.set_search_casesensitive)
-        action_wild = smenu.addAction('Wildcard')
+        action_wild = smenu.addAction("Wildcard")
         action_wild.setCheckable(True)
         action_wild.setChecked(self.search_wildcard)
         action_wild.triggered.connect(self.set_search_wildcard)
@@ -616,12 +662,16 @@ class LoggerTab(QWidget):
     def filter_or_clear(self):
         self.search_filter = not self.search_filter
         if self.search_filter:
-            self.filterButton.setText('Clear filter')
+            self.filterButton.setText("Clear filter")
             self.filter_model.search_filter = True
-            self.filter_model.set_filter(self.searchLine.text(), self.search_regex,
-                                         self.search_wildcard, self.search_casesensitive)
+            self.filter_model.set_filter(
+                self.searchLine.text(),
+                self.search_regex,
+                self.search_wildcard,
+                self.search_casesensitive,
+            )
         else:
-            self.filterButton.setText('Filter')
+            self.filterButton.setText("Filter")
             self.filter_model.clear_filter()
             self.invalidate_filter(resize_rows=True)
 
@@ -645,7 +695,9 @@ class LoggerTab(QWidget):
         selected = self.levelsTable.selectedIndexes()
         for index in selected:
             if index.column() == 0:
-                checkbox = self.levelsTable.cellWidget(index.row(), index.column()).children()[1]
+                checkbox = self.levelsTable.cellWidget(
+                    index.row(), index.column()
+                ).children()[1]
                 checkbox.toggle()
         self.invalidate_filter(resize_rows=True)
 
@@ -662,9 +714,11 @@ class LoggerTab(QWidget):
         if self.search_wildcard:
             search_flags = search_flags | Qt.MatchWildcard
 
-        hits = self.filter_model.match(start, SearchRole, s, 1, Qt.MatchWrap | search_flags)
+        hits = self.filter_model.match(
+            start, SearchRole, s, 1, Qt.MatchWrap | search_flags
+        )
         if not hits:
-            self.log.warn('No matches for {}'.format(s))
+            self.log.warn("No matches for {}".format(s))
             self.search_start = 0
         else:
             result = hits[0]
@@ -709,7 +763,7 @@ class LoggerTab(QWidget):
             self.loggerTable.scrollToBottom()
 
     def add_conn_closed_record(self, conn):
-        record = LogRecord({'_outlogix': 'Connection {} closed'.format(conn.conn_id)})
+        record = LogRecord({"_outlogix": "Connection {} closed".format(conn.conn_id)})
         self.on_record(record)
 
     def get_record(self, index):
@@ -763,10 +817,14 @@ class LoggerTab(QWidget):
         include_children_action = menu.addAction("Selection includes children")
         include_children_action.setCheckable(True)
         if self.filter_model_enabled:
-            include_children_action.setChecked(self.filter_model.selection_includes_children)
+            include_children_action.setChecked(
+                self.filter_model.selection_includes_children
+            )
         else:
             include_children_action.setEnabled(False)
-        include_children_action.triggered.connect(self.toggle_selection_includes_children)
+        include_children_action.triggered.connect(
+            self.toggle_selection_includes_children
+        )
         menu.popup(self.namespaceTreeView.viewport().mapToGlobal(position))
 
     def toggle_selection_includes_children(self, val):
@@ -799,10 +857,14 @@ class LoggerTab(QWidget):
         record = self.get_record(row_index)
         menu = QMenu(self)
         view_message = menu.addAction("View message")
-        view_message.triggered.connect(partial(self.open_text_view_dialog, row_index, False))
+        view_message.triggered.connect(
+            partial(self.open_text_view_dialog, row_index, False)
+        )
         if record.exc_text:
             view_traceback = menu.addAction("View traceback")
-            view_traceback.triggered.connect(partial(self.open_text_view_dialog, row_index, True))
+            view_traceback.triggered.connect(
+                partial(self.open_text_view_dialog, row_index, True)
+            )
         menu.popup(self.table_header_view.viewport().mapToGlobal(position))
 
     def open_header_menu(self, position):
@@ -814,13 +876,13 @@ class LoggerTab(QWidget):
     def open_header_dialog(self):
         d = HeaderEditDialog(self.main_window, self.table_header)
         d.header_changed.connect(self.header_changed)
-        d.setWindowTitle('Header editor')
+        d.setWindowTitle("Header editor")
         d.open()
 
     def header_changed(self, preset_name, set_as_default, columns):
         self.table_header.preset_name = preset_name
         if set_as_default:
-            CONFIG.set_option('default_header_preset', preset_name)
+            CONFIG.set_option("default_header_preset", preset_name)
         CONFIG.save_header_preset(preset_name, columns)
         self.table_header.replace_columns(columns)
         self.record_model.modelReset.emit()
@@ -852,7 +914,7 @@ class LoggerTab(QWidget):
     def open_text_view_dialog(self, index, exception=False):
         record = self.get_record(index)
         text = record.exc_text if exception else record.message
-        title = 'Exception traceback' if exception else 'View message'
+        title = "Exception traceback" if exception else "View message"
         show_textview_dialog(self.main_window, title, text)
 
     def enable_all_levels(self):
@@ -879,7 +941,9 @@ class LoggerTab(QWidget):
 
     def level_double_clicked(self, index):
         row, column = index.row(), index.column()
-        if column == 0:  # if you're clicking at the checkbox widget, just toggle it instead
+        if (
+            column == 0
+        ):  # if you're clicking at the checkbox widget, just toggle it instead
             checkbox = self.levelsTable.cellWidget(row, column).children()[1]
             checkbox.toggle()
             self.level_show_changed(checkbox.isChecked())
@@ -897,24 +961,26 @@ class LoggerTab(QWidget):
         d = LevelEditDialog(self.main_window, level)
         d.level_changed.connect(self.level_changed)
         d.setWindowModality(Qt.NonModal)
-        d.setWindowTitle('Level editor')
+        d.setWindowTitle("Level editor")
         d.open()
 
     def open_levels_preset_dialog(self):
         preset_name = self.level_filter.preset_name
         d = LevelsPresetDialog(self.main_window, preset_name, self.level_filter.levels)
         d.levels_changed.connect(self.levels_changed)
-        d.setWindowTitle('Header editor')
+        d.setWindowTitle("Header editor")
         d.open()
 
     def level_changed(self, level):
         self.level_filter.set_level(level)
-        CONFIG.save_levels_preset(self.level_filter.preset_name, self.level_filter.levels)
+        CONFIG.save_levels_preset(
+            self.level_filter.preset_name, self.level_filter.levels
+        )
 
     def levels_changed(self, preset_name, set_as_default, levels):
         self.level_filter.preset_name = preset_name
         if set_as_default:
-            CONFIG.set_option('default_levels_preset', preset_name)
+            CONFIG.set_option("default_levels_preset", preset_name)
         self.level_filter.merge_with(levels)
         self.regen_levels_table(self.level_filter.levels)
         CONFIG.save_levels_preset(preset_name, levels)
@@ -959,7 +1025,9 @@ class LoggerTab(QWidget):
             # node, then resizing is needed
             if self.filter_model.selection_includes_children:
                 for node in cur_sel:
-                    if not any([node.is_descendant_of(pnode.path) for pnode in prev_sel]):
+                    if not any(
+                        [node.is_descendant_of(pnode.path) for pnode in prev_sel]
+                    ):
                         resize_rows = True
                         break
             # if selection doesn't include children, records can re-appear
@@ -970,7 +1038,7 @@ class LoggerTab(QWidget):
                         resize_rows = True
                         break
 
-        self.log.debug('resize_rows = {}'.format(resize_rows))
+        self.log.debug("resize_rows = {}".format(resize_rows))
         self.invalidate_filter(resize_rows=resize_rows)
 
     def level_show_changed(self, val):
@@ -998,7 +1066,7 @@ class LoggerTab(QWidget):
         while start <= end:
             index = tmodel.index(start, 0, pindex)
             if not index.isValid():
-                self.log.error('Invalid index!')
+                self.log.error("Invalid index!")
             else:
                 tree.expand(index)
             start += 1
@@ -1007,7 +1075,7 @@ class LoggerTab(QWidget):
         self.scroll_max = max
 
     def closeEvent(self, event=None):
-        self.log.debug('Tab close event!')
+        self.log.debug("Tab close event!")
         self.stop_all_connections()
         if self.popped_out:
             self.main_window.close_popped_out_logger(self)
