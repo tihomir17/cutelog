@@ -84,7 +84,7 @@ OPTION_SPEC = (
     # Header
     ('default_header_preset',        str,  'Stock'),
     ('default_levels_preset',        str,  'Stock'),
-    ('cutelog_version',              str,  ''),
+    ('outlogix_version',              str,  ''),
 )
 
 
@@ -123,7 +123,7 @@ class Config(QObject):
 
     def post_init(self):
         running_version = StrictVersion(QCoreApplication.applicationVersion())
-        config_version = self.options['cutelog_version']
+        config_version = self.options['outlogix_version']
         if config_version == "" or config_version != running_version:
             self.save_running_version()
 
@@ -149,7 +149,7 @@ class Config(QObject):
 
     @staticmethod
     def get_resource_path(name, directory='ui'):
-        data_dir = resource_filename('cutelog', directory)
+        data_dir = resource_filename('outlogix', directory)
         path = os.path.join(data_dir, name)
         if not os.path.exists(path):
             raise FileNotFoundError('Resource file not found in this path: "{}"'.format(path))
@@ -358,8 +358,8 @@ class Config(QObject):
         self.log.debug("Updating the config version to {}".format(version))
         s = self.qsettings
         s.beginGroup('Configuration')
-        s.setValue('cutelog_version', version)
-        self.options['cutelog_version'] = version
+        s.setValue('outlogix_version', version)
+        self.options['outlogix_version'] = version
         s.endGroup()
         self.sync()
 
@@ -371,9 +371,9 @@ class Config(QObject):
 def init_qt_info():
     QCoreApplication.setOrganizationName('busimus')
     QCoreApplication.setOrganizationDomain('busz.me')
-    QCoreApplication.setApplicationName('cutelog')
-    version = get_distribution(QCoreApplication.applicationName()).version
-    QCoreApplication.setApplicationVersion(version)
+    QCoreApplication.setApplicationName('outlogix')
+    # version = get_distribution(QCoreApplication.applicationName()).version
+    # QCoreApplication.setApplicationVersion(version)
     if not QT55_COMPAT:  # this attribute was introduced in Qt 5.6
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 

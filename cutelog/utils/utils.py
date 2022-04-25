@@ -2,6 +2,8 @@ import qtpy
 from qtpy.QtCore import QMetaObject, Qt
 from qtpy.QtWidgets import QDesktopWidget, QMessageBox
 from text_view_dialog.text_view_dialog import TextViewDialog
+import json
+from ast import literal_eval
 
 
 def show_info_dialog(parent, title, text):

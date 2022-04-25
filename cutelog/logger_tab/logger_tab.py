@@ -202,7 +202,7 @@ class LogRecordModel(QAbstractTableModel):
 
         result = None
         record = self.records[index.row()]
-        if getattr(record, '_cutelog', False):
+        if getattr(record, '_outlogix', False):
             return self.data_internal(index, record, role)
 
         if role == Qt.DisplayRole:
@@ -265,7 +265,7 @@ class LogRecordModel(QAbstractTableModel):
         result = None
         if role == Qt.DisplayRole:
             if index.column() == self.columnCount(INVALID_INDEX) - 1:
-                result = record._cutelog
+                result = record._outlogix
             else:
                 column = self.table_header[index.column()]
                 if column.name == 'asctime':
@@ -709,7 +709,7 @@ class LoggerTab(QWidget):
             self.loggerTable.scrollToBottom()
 
     def add_conn_closed_record(self, conn):
-        record = LogRecord({'_cutelog': 'Connection {} closed'.format(conn.conn_id)})
+        record = LogRecord({'_outlogix': 'Connection {} closed'.format(conn.conn_id)})
         self.on_record(record)
 
     def get_record(self, index):
@@ -831,7 +831,7 @@ class LoggerTab(QWidget):
     def merge_with_records(self, new_records):
         self.record_model.merge_with_records(new_records)
         for record in new_records:
-            if record._cutelog is not None:
+            if record._outlogix is not None:
                 continue
             if record.name:
                 self.register_logger(record.name)

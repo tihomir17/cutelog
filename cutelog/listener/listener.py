@@ -95,7 +95,7 @@ class LogConnection(QThread):
 
     new_record = Signal(LogRecord)
     connection_finished = Signal(object)
-    internal_prefix = b"!!cutelog!!"
+    internal_prefix = b"!!outlogix!!"
 
     def __init__(self, parent, socketDescriptor, conn_id, log):
         super().__init__(parent)

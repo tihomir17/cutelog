@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="/">
-      <file alias="cutelog.png">images/cutelog.png</file>
+      <file alias="outlogix.png">images/outlogix.png</file>
       <file alias="light_theme.qss">light_theme.qss</file>
       <file alias="dark_theme.qss">dark_theme.qss</file>
   </qresource>

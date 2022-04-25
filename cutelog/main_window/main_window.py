@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
 
     def setupUi(self):
         self.resize(800, 600)
-        self.setWindowTitle('cutelog')
+        self.setWindowTitle('outlogix')
 
         self.loggerTabWidget = QTabWidget(self)
         self.loggerTabWidget.setTabsClosable(True)
@@ -99,9 +99,13 @@ class MainWindow(QMainWindow):
         self.actionTrimTabRecords = self.menuRecords.addAction('Trim records')
         self.actionSetMaxCapacity = self.menuRecords.addAction('Set max capacity')
 
+        # Tools menu
+        self.menuServer = self.menubar.addMenu("Tools")
+        self.actionLogToJsonConverter = self.menuServer.addAction('Log to json converter')
+
         # Help menu
         self.menuHelp = self.menubar.addMenu("Help")
-        self.actionAbout = self.menuHelp.addAction("About cutelog")
+        self.actionAbout = self.menuHelp.addAction("About outlogix")
 
         self.change_actions_state()  # to disable all logger actions, since they don't function yet
 
@@ -126,6 +130,9 @@ class MainWindow(QMainWindow):
         # Server menu
         self.actionRestartServer.triggered.connect(self.restart_server)
         self.actionStartStopServer.triggered.connect(self.start_or_stop_server)
+        
+        # Tools menu
+        self.actionLogToJsonConverter.triggered.connect(self.converter_dialog)
 
         # Records menu
         self.actionTrimTabRecords.triggered.connect(self.trim_records_dialog)
@@ -139,12 +146,13 @@ class MainWindow(QMainWindow):
         # if there are no loggers in tabs, these actions will be disabled:
         actions = [self.actionCloseTab, self.actionExtraMode, self.actionPopOut,
                    self.actionRenameTab, self.actionPopIn,
-                   self.actionTrimTabRecords, self.actionSetMaxCapacity, self.actionSaveRecords]
+                   self.actionTrimTabRecords, self.actionSetMaxCapacity, self.actionSaveRecords, self.actionLogToJsonConverter]
 
         if not logger:
             for action in actions:
                 action.setDisabled(True)
             self.actionExtraMode.setChecked(False)
+            self.actionLogToJsonConverter.setDisabled(False)
             if len(self.popped_out_loggers) > 0:
                 self.actionPopIn.setDisabled(False)
         else:
@@ -326,6 +334,32 @@ class MainWindow(QMainWindow):
         logger.log.name = '.'.join(logger.log.name.split('.')[:-1]) + '.{}'.format(new_name)
         self.loggerTabWidget.setTabText(index, new_name)
 
+
+    def log_to_json(self, filepath:str = ""):
+        import json
+        import ast
+
+        result = []
+        with open(filepath) as f: 
+            lines = f.readlines() 
+            for line in lines: 
+                result.append(ast.literal_eval(line.split('\n')[0]))
+        with open("mydata.json", "w") as final:
+            json.dump(result, final)
+            
+        self.set_status("Conversion done", timeout=5000)
+
+
+    def converter_dialog(self):
+        d = QFileDialog(self)
+        d.setNameFilters(["Log files (*.log)", "json (*.json)"])
+        d.selectNameFilter("Logs (*.log *.json)")        
+        if d.exec():
+            for f in d.selectedFiles():
+                self.log_to_json(f)
+
+            
+                
     def trim_records_dialog(self):
         logger, index = self.current_logger_and_index()
         if not logger:
@@ -336,7 +370,7 @@ class MainWindow(QMainWindow):
         d.setIntRange(0, 100000000)  # because it sets intMaximum to 99 by default. why??
         d.setLabelText('Keep this many records out of {}:'.format(logger.record_model.rowCount()))
         d.setWindowTitle('Trim tab records of "{}" logger'.format(logger.name))
-        d.intValueSelected.connect(self.trim_current_tab_records)
+        d.intValueSelected.connect(self.trim_current_tab_recordconverter_dialogs)
         d.open()
 
     def trim_current_tab_records(self, n):
@@ -430,7 +464,7 @@ class MainWindow(QMainWindow):
         logger.destroyed.connect(logger.closeEvent)
         logger.setAttribute(Qt.WA_DeleteOnClose, True)
         logger.setWindowFlags(Qt.Window)
-        logger.setWindowTitle('cutelog: "{}"'.format(self.loggerTabWidget.tabText(index)))
+        logger.setWindowTitle('outlogix: "{}"'.format(self.loggerTabWidget.tabText(index)))
         self.popped_out_loggers[logger.name] = logger
         self.loggerTabWidget.removeTab(index)
         logger.popped_out = True
